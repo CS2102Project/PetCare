@@ -6,39 +6,59 @@
 
 <?php
 	$result=pg_query($conn, "SELECT * FROM pets");
-	while($row=pg_fetch_assoc($result)){
-		echo "<div>
-      <form class='form-signin' action='viewPets.php' method='POST'>
-
-        <label>Pet ID:</label><input type='text' name='pet_id_updated' class='form-control' 
-        value = '$row[pid]' required autofocus>
-        <label>Pet Name:</label><input type='text' name='pet_name_updated' class='form-control' 
-        value = '$row[pname]' required>
-        <label>Pet Type:</label><input type='text' name='pet_type_updated' class='form-control' 
-        value = '$row[ptype]' required>
-        <label>Owner ID:</label><input type='text' name='owner_id_updated' class='form-control' 
-        value = '$row[oid]' required>
-        <button class='btn btn-lg btn-warning btn-block' type='submit' name='update_pet'>Update this pet
-        </button>
-        <button class='btn btn-lg btn-warning btn-block' type='submit' name='delete_pet'>Delete this pet
-        </button>
-      </form>
-
-      </div>";
-	}
+  while ($row = pg_fetch_assoc($result)) {
+    echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
+        echo "Pet ID: ".$row['pid'];
+        echo "<form class='delete-form' action='viewPets.php' method='POST'>
+         <input type='hidden' name = 'oId' placeholder='owner id' value='".$row['oid']."' required > 
+         <input type='hidden' name = 'pName' placeholder='pet name' value='".$row['pname']."' required > 
+         <input type='hidden' name = 'pType' placeholder='pet type' value='".$row['ptype']."' required > 
+         <input type='hidden' name = 'pId' placeholder='pet id' value='".$row['pid']."' required > 
+         <label>Update pet id</label>   
+         <input type='text' name = 'newPetId' placeholder='update petId'
+          value = '".$row['pid']."' required >
+         <button class='btn btn-warning btn-xs' type='submit' name='update_pet'>update pet id</button>
+         <button class='btn btn-warning btn-xs' type='submit' name='delete_pet'>Delete pet</button>
+         </form>";
+        echo "</div><div class='panel panel-body'>";
+        echo "Pet Name:  ".$row['pname']." ";
+        echo "<br>Pet Type:    ".$row['ptype']. " ";
+        echo "<br>Owner ID:    ".$row['oid']. " ";
+        echo "</div></div>";
+        
+  }
+	
 	if(isset($_POST['update_pet'])){
-		$result=pg_query($conn, "UPDATE pets SET oid='$_POST[owner_id_updated]',pname='$_POST[pet_name_updated]',ptype='$_POST[pet_type_updated]' WHERE pid='$_POST[pet_id_updated]'");
-    	    if (!$result){ echo "Update failed!!";}
-        	else {echo "Update successful!";}
+		$result = pg_query($conn, "UPDATE pets SET pid ='$_POST[newPetId]' 
+      WHERE pname ='$_POST[pName]' AND ptype ='$_POST[pType]' AND oid = '$_POST[oId]'");
+    	  if (!$result) {
+          echo "<div class='alert alert-danger alert-dismissible' role='alert'>
+             Update this pet ID failed.
+             </div>";
+         
+        } else {
+            echo "<div class='alert alert-success alert-dismissible' role='alert'>
+              Update this pet ID successfully!
+              </div>";
+            echo "<meta http-equiv='refresh' content = '3'>";
+      
+        }
     }
 	if(isset($_POST['delete_pet'])){
-		$result1=pg_query($conn, "DELETE FROM pets WHERE pid='$_POST[pet_id_updated]'");
-		$result=pg_query($conn, "DELETE FROM pets WHERE oid='$_POST[owner_id_updated]'");
-		if (!$result1){ echo "Delete failed!!";}
-   		else{
-       		if(!$result){ echo "Delete failed!";}
-   			else {echo "Delete successful!";}
-		}
+    $pid = $_POST['pId'];
+    $result1 = pg_query($conn, "DELETE FROM bid WHERE pid = '$pid'");
+    $result2 = pg_query($conn, "DELETE FROM pets WHERE pid = '$pid'");
+		if (!($result2 && $result1)) {
+          echo "<div class='alert alert-danger alert-dismissible' role='alert'>
+             Delete pet failed.
+             </div>";
+         
+        } else {
+            echo "<div class='alert alert-success alert-dismissible' role='alert'>
+              Delete pet successfully!
+              </div>";
+            echo "<meta http-equiv='refresh' content = '3'>";
+        }
 	}
 
 ?>

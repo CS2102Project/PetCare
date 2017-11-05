@@ -5,37 +5,60 @@
 ?>
 
 <?php
-	$result=pg_query($conn, "SELECT * FROM users");
-	while($row=pg_fetch_assoc($result)){
-		echo "<ul><form name='diplay' action='viewUsers.php' method='POST'>
-		<li>User ID: $row[uid]</li>
-		<li>User Password: $row[password]</li>
-		<li>User Bidding points</li>
-		<li><input type='text' name='user_pts_updated' value='$row[points]'/></li>
-		</form>
-		</ul>";
-		echo "<div class='panel panel-body'>
-		<button class='btn btn-warning btn-block' type='submit' name='update_user'>update</button>
-		<button class='btn btn-warning btn-block' type='submit' name='delete_user'>delete</button>
-		</div>";
+	$result=pg_query($conn, "SELECT * FROM users WHERE uid <> 'admin'");
+	while ($row = pg_fetch_assoc($result)) {
+    echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
+        echo "User ID: ".$row['uid'];
+        echo "<form class='delete-form' action='viewUsers.php' method='POST'>
+         <input type='hidden' name='uId' placeholder='user id' value='".$row['uid']."' required >    
+         <input type='number' min='0' name='newPoints' placeholder='update points' 
+         	value = '".$row['points']."' required >
+         <button class='btn btn-warning btn-xs' type='submit' name='pointUpdate'>Update points</button>
+         <button class='btn btn-warning btn-xs' type='submit' name='userDelete'>Delete user</button>
+         </form>";
+        echo "</div><div class='panel panel-body'>";
+        echo "User Password:  ".$row['password']." ";
+        echo "<br>User Bidding Points:    ".$row['points']. " ";
+        echo "</div></div>";
+        
+  }
+	
+	if(isset($_POST['pointUpdate'])){
+		$newPoint = $_POST['newPoints'];
+		$uid = $_POST['uId'];
+		$resulta = pg_query($conn, "UPDATE users SET points ='$newPoint'
+		  WHERE uid = '$uid'");
+		if (!$resulta) {
+          echo "<div class='alert alert-danger alert-dismissible' role='alert'>
+             Update this user's bidding points failed.
+             </div>";
+         
+        } else {
+            echo "<div class='alert alert-success alert-dismissible' role='alert'>
+              Update this user's bidding points successfully!
+              </div>";
+            echo "<meta http-equiv='refresh' content = '3'>";
+      
+        }
 	}
-	if(isset($_POST['update_user'])){
-		$result=
-			pg_query($conn, "UPDATE users SET points='$_POST[user_pts_updated]' WHERE uid='$row[uid]'");
-		if (!$result){ echo "Update failed!!";}
-        else{echo "Update successful!";}
-		}
-	if(isset($_POST['delete_user'])){
-		$result1=pg_query($conn, "DELETE FROM bid WHERE bid='$row[uid]'");
-		$result2=pg_query($conn, "DELETE FROM availability WHERE cid='$row[uid]'");
-		$result3=pg_query($conn, "DELETE FROM pets WHERE oid=$row[uid]");
-		$result4=pg_query($conn, "DELETE FROM users WHERE uid=$row[uid]");
-		if($result1&&$result2&&$result3&&$result){
-			echo "Delete successful!";
-		}
-		else{
-			echo "Delete failed!";
-		}
+	if(isset($_POST['userDelete'])){
+		$uid = $_POST['uId'];
+		$result1=pg_query($conn, "DELETE FROM bid WHERE bid='$uid'");
+		$result2=pg_query($conn, "DELETE FROM availability WHERE cid ='$uid'");
+		$result3=pg_query($conn, "DELETE FROM pets WHERE oid = '$uid'");
+		$result4=pg_query($conn, "DELETE FROM users WHERE uid = '$uid'");
+		if($result4){
+			  echo "<div class='alert alert-success alert-dismissible' role='alert'>
+              Delete user successfully!
+              </div>";
+            echo "<meta http-equiv='refresh' content = '3'>";
+         
+        } else {
+        	echo "<div class='alert alert-danger alert-dismissible' role='alert'>
+             Delete user failed.
+             </div>";
+        }
+      
 	}
 
 ?>
