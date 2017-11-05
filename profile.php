@@ -113,7 +113,7 @@
          <input type ='text' name = 'pId' placeholder = 'Pet ID' required>
          <input type ='text' name = 'pName' placeholder = 'Pet Name' required>
          <input type ='text' name = 'pType' placeholder = 'Pet Type' required>
-         <button class='btn btn-warning btn-xs' type='submit' name='add_pet'>Add a pet</button>
+         <button class='btn btn-warning btn-lg' type='submit' name='add_pet'>Add a pet</button>
          </form>";
         echo"</div></div>";
 
