@@ -19,7 +19,14 @@ echo"
         <button class='btn btn-lg btn-warning btn-block' type='submit' name='postAvailSubmit'>SUBMIT</button>
       </form>
 </div>"; 
-getAvail($conn);
+echo "<div>
+  <h2 class='form-signin-heading'>Bidding on going </h2>
+  </div>";
+getOnGoingAvail($conn);
+echo "<div>
+  <h2 class='form-signin-heading'>My caring history </h2>
+  </div>";
+  getAvailHistory($conn);
 ?>
 
 <?php
@@ -44,11 +51,20 @@ function post_avail($conn) {
 		
 	}
 }
-function getAvail($conn){
+
+// Get bidding on going availabilities, which are the availabilities that bidder is not set
+function getOnGoingAvail($conn){
 	$cid = $_SESSION['uid'];
 	$sql = "SELECT * FROM availability WHERE cid = '$cid'";
 	$result = pg_query($conn, $sql);
 	while ($row = pg_fetch_assoc($result)) {
+		// Check whether this availability is closed
+		$aid = $row['aid'];
+		$sql2 = "SELECT * FROM bid WHERE aid = '$aid' AND status = 'successful'";
+		$result2 = pg_query($conn, $sql2);
+
+		// There is no bid successful for this availability, this availability is bidding on going
+		if (pg_num_rows($result2) == 0) {
 				echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
 				echo $row['ptype'];
 				echo "</div><div class='panel panel-body'>";
@@ -64,9 +80,85 @@ function getAvail($conn){
 				<input type='date' name='ato' value='".$row['ato']."'>
 				<button type=submit name = 'AvailUpdate' class='btn btn-warning btn-xs'>EDIT</button>
 			</form>";
+			showBidders($conn, $row['aid']);
+		echo "</div></div>";
+	}
+		
+	}
+	
+}
+
+// Get availability history, which are the availabilities that bidder is already set
+function getAvailHistory($conn){
+	$cid = $_SESSION['uid'];
+	$sql = "SELECT a.aid, a.ato, a.afrom, a.ptype FROM availability a, bid b WHERE a.cid = '$cid' AND a.aid = b.aid AND b.status = 'successful'";
+	$result = pg_query($conn, $sql);
+	while ($row = pg_fetch_assoc($result)) {
+				echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
+				echo $row['ptype'];
+				echo "</div><div class='panel panel-body'>";
+				echo "From    ".$row['afrom']."</h3>"."  to  ".$row['ato'];
+			showSuccessfulBidders($conn, $row['aid']);
 		echo "</div></div>";
 	}
 	
+}
+
+
+// Show the bidders in an closed availability
+function showSuccessfulBidders($conn, $aid) {
+	$sql = "SELECT * FROM bid WHERE aid = '$aid'";
+	$result = pg_query($conn, $sql);
+	while ($row = pg_fetch_assoc($result)) {
+		echo "<br>Bidder: ".$row['bid'].", Bid points: ".$row['points'].", Status: ".$row['status'];
+	}
+}
+
+// Show the bidders bidding for an availability
+function showBidders($conn, $aid) {
+	$sql = "SELECT * FROM bid WHERE aid = '$aid'";
+	$result = pg_query($conn, $sql);
+	while ($row = pg_fetch_assoc($result)) {
+		echo "<div><br>Bidder: ".$row['bid'].", Bid points: ".$row['points'].", Status: ".$row['status'];
+		echo "<form method='POST' action='".chooseBidder($conn)."'>
+				<input type='hidden' name='bid' value='".$row['bid']."'>
+				<input type='hidden' name='aid' value='".$row['aid']."'>
+				<input type='hidden' name='pid' value='".$row['pid']."'>
+				<input type='hidden' name='points' value='".$row['points']."'>
+				<button type=submit name = 'ChooseBidderButton' class='btn btn-warning btn-xs'>Choose this bidder</button>
+			</form></div>";
+	}
+}
+
+// The carer choose a bidder for one availability
+function chooseBidder($conn) {
+	if (isset($_POST['ChooseBidderButton'])) {
+		$bid = $_POST['bid'];
+		$aid = $_POST['aid'];
+		$pid = $_POST['pid'];
+		$points = $_POST['points'];
+
+		// Make other bids fail
+		$sql2 = "UPDATE bid SET status = 'failed' where aid ='$aid'";
+		$result = pg_query($conn, $sql2);
+
+		// Make the bid successful
+		$sql1 = "UPDATE bid SET status = 'successful' where bid ='$bid' AND aid ='$aid' AND pid ='$pid'";
+		$result = pg_query($conn, $sql1);
+
+		// Get points left
+		$sql3 = "SELECT * FROM users SET where uid ='$bid'";
+		$result = pg_query($conn, $sql3);
+		$row = pg_fetch_assoc($result);
+		$pointsLeft = $row['points'] - $points;
+
+		// Deduct points of bidder
+		$sql4 = "UPDATE users SET points = '$pointsLeft' where uid ='$bid'";
+		$result = pg_query($conn, $sql4);
+		
+		header("Location: putAvail.php");
+		
+		}
 }
 	function delete($conn){
 		if (isset($_POST['AvailDelete'])) {
@@ -99,6 +191,6 @@ function getAvail($conn){
 ?>
 
 <html>
-<body background="images/doginbag.jpg">
+<body background="images/dogflower.jpg">
 </body>
 </html>
