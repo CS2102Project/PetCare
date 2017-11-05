@@ -8,6 +8,7 @@ INSERT INTO users VALUES('happy293', 'happy293', 500);
 INSERT INTO users VALUES('Kelvin98', 'Kelvin98', 500);
 INSERT INTO users VALUES('Chunhui12', 'Chunhui12', 500);
 INSERT INTO users VALUES('Celiahuuuu', 'Celiahuuuu', 500);
+INSERT INTO users VALUES('admin', '1234', 500);
  
 INSERT INTO pets VALUES('19583049', 'maggie', 'Dog', 'mx98');
 INSERT INTO pets VALUES('23939204', 'max', 'Cat', 'cyuan79');
