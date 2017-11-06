@@ -27,6 +27,7 @@ echo "<div>
   <h2 class='form-signin-heading'>My caring history </h2>
   </div>";
   getAvailHistory($conn);
+  chooseBidder($conn);
 ?>
 
 <?php
@@ -132,7 +133,7 @@ function showBidders($conn, $aid) {
 	$result = pg_query($conn, $sql);
 	while ($row = pg_fetch_assoc($result)) {
 		echo "<div><br>Bidder: ".$row['bid'].", Bid points: ".$row['points'].", Status: ".$row['status'];
-		echo "<form method='POST' action='".chooseBidder($conn)."'>
+		echo "<form method='POST' action='putAvail.php'>
 				<input type='hidden' name='bid' value='".$row['bid']."'>
 				<input type='hidden' name='aid' value='".$row['aid']."'>
 				<input type='hidden' name='pid' value='".$row['pid']."'>
