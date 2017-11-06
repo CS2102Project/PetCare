@@ -5,7 +5,7 @@
 ?>
 
 <?php
-	$result=pg_query($conn, "SELECT * FROM availability");
+	$result=pg_query($conn, "SELECT * FROM availability  ORDER BY aid ASC");
 
 	while ($row = pg_fetch_assoc($result)) {
     echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
@@ -13,10 +13,10 @@
         echo "<form class='delete-form' action='viewAvai.php' method='POST'>
          <input type='hidden' name='aId' value='".$row['aid']."' required >    
          <label>Update starting time</label>   
-         <input type='text' name = 'newStart' placeholder='update start time'
+         <input type='date' name = 'newStart' placeholder='update start time'
          	 value = '".$row['afrom']."' required >
          <label> Update ending time</label>
-         <input type='text' name = 'newEnd' placeholder='update end time'
+         <input type='date' name = 'newEnd' placeholder='update end time'
          	 value = '".$row['ato']."' required >
          <button class='btn btn-warning btn-xs' type='submit' name='update_avai'>
          	Update availability</button>

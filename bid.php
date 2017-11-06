@@ -40,7 +40,7 @@ function search($conn){
      $pType = $_POST['petType'];
      $sTime = $_POST['sTime'];
      $eTime = $_POST['eTime'];
-     $sql = "SELECT * FROM availability a WHERE a.ptype = '$pType' AND ((a.afrom <= '$sTime' AND a.ato >= '$eTime'))";
+     $sql = "SELECT * FROM availability a WHERE a.ptype = '$pType' AND ((a.afrom <= '$sTime' AND a.ato >= '$eTime'))  ORDER BY a.aid ASC";
 
      $result = pg_query($conn, $sql);   
      while ($row = pg_fetch_assoc($result)) {
@@ -68,7 +68,7 @@ function search($conn){
 
 
 function getAvail($conn){
-    $sql = "SELECT * FROM availability a WHERE 'pending' = ALL(SELECT status FROM bid b WHERE b.aid = a.aid)";
+    $sql = "SELECT * FROM availability a WHERE 'pending' = ALL(SELECT status FROM bid b WHERE b.aid = a.aid)  ORDER BY a.aid ASC";
     $result = pg_query($conn, $sql);
    
 

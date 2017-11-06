@@ -53,7 +53,7 @@
     <h2 class='form-signin-heading'>My pets</h2>
   </form>
   </div>";  
-  $result = pg_query($conn, "SELECT * FROM pets WHERE oid = '$uid'" );
+  $result = pg_query($conn, "SELECT * FROM pets WHERE oid = '$uid' ORDER BY pid ASC" );
   while ($row = pg_fetch_assoc($result)) {
         echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
         echo "Pet ID: ".$row['pid'];
@@ -140,7 +140,8 @@
   FROM availability a, bid b
   WHERE a.aid = b.aid
   AND b.bid = '$uid'
-  AND b.status = 'pending'");
+  AND b.status = 'pending'
+  ORDER BY b.pid ASC");
 
   echo "<div>
   <form class='form-signin' action='profile.php' method='POST'>
@@ -233,7 +234,8 @@
   FROM availability a, bid b
   WHERE a.aid = b.aid
   AND b.bid = '$uid'
-  AND b.status = 'successful'");
+  AND b.status = 'successful'
+  ORDER BY b.pid ASC");
 
   echo "<div>
   <form class='form-signin' action='profile.php' method='POST'>
@@ -256,7 +258,8 @@
   FROM availability a, bid b
   WHERE a.aid = b.aid
   AND b.bid = '$uid'
-  AND b.status = 'failed'");
+  AND b.status = 'failed'
+  ORDER BY b.pid ASC");
 
   while ($row = pg_fetch_assoc($result4)) {
     echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
