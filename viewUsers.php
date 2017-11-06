@@ -5,7 +5,7 @@
 ?>
 
 <?php
-	$result=pg_query($conn, "SELECT * FROM users WHERE uid <> 'admin'");
+	$result=pg_query($conn, "SELECT * FROM users WHERE uid <> 'admin' ORDER BY uid ASC");
 	while ($row = pg_fetch_assoc($result)) {
     echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
         echo "User ID: ".$row['uid'];

@@ -11,11 +11,15 @@
   </div>";
 
 
-  $result = pg_query($conn, "SELECT * FROM users WHERE uid = '$uid'");
-  $row = pg_fetch_assoc($result);
+  $result1 = pg_query($conn, "SELECT * FROM users WHERE uid = '$uid'");
+  $result2 = pg_query($conn, "SELECT SUM(b.points) FROM users u, bid b 
+          WHERE u.uid = b.bid AND u.uid = '$uid' AND b.status = 'pending' GROUP BY b.bid");
+  $row1 = pg_fetch_assoc($result1);
+  $row2 = pg_fetch_assoc($result2);
+  $pointsRemain = $row1[points] - $row2[sum];
 
   echo "<div>
-  <h2 class='form-signin-heading'>My bidding points:  $row[points] </h2>
+  <h2 class='form-signin-heading'>My bidding points:  $pointsRemain </h2>
   </div>";
 
   echo"
@@ -49,7 +53,7 @@
     <h2 class='form-signin-heading'>My pets</h2>
   </form>
   </div>";  
-  $result = pg_query($conn, "SELECT * FROM pets WHERE oid = '$uid'" );
+  $result = pg_query($conn, "SELECT * FROM pets WHERE oid = '$uid' ORDER BY pid ASC" );
   while ($row = pg_fetch_assoc($result)) {
         echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
         echo "Pet ID: ".$row['pid'];
@@ -136,7 +140,8 @@
   FROM availability a, bid b
   WHERE a.aid = b.aid
   AND b.bid = '$uid'
-  AND b.status = 'pending'");
+  AND b.status = 'pending'
+  ORDER BY b.pid ASC");
 
   echo "<div>
   <form class='form-signin' action='profile.php' method='POST'>
@@ -150,6 +155,8 @@
         echo "<form class='delete-form' action='profile.php' method='POST'>
          <input type='hidden' name='pId' placeholder='pet id' value='".$row['pid']."' required >
          <input type='hidden' name='aId' placeholder='avail id' value='".$row['aid']."' required >
+         <input type='hidden' name='old_points' placeholder='old points' 
+            value='".$row['points']."' required >
          <input type='number' min='0' name='newPoints' placeholder='update points' 
             value = '".$row['points']."' required >
          <button class='btn btn-warning btn-xs' type='submit' name='bidUpdate'>Update bid</button>
@@ -168,17 +175,24 @@
       $aid = $_POST['aId'];
       $pid = $_POST['pId'];
       $points = $_POST['newPoints'];
+      $old_points = $_POST['old_points'];
       $bid = $_SESSION['uid'];
 
       //Check enough points
       $result3a = pg_query($conn, "SELECT * FROM users WHERE uid = '$uid'"); 
+      $result3c = pg_query($conn, "SELECT SUM(b.points) FROM users u, bid b 
+          WHERE u.uid = b.bid AND u.uid = '$uid' AND b.status = 'pending' GROUP BY b.bid");
       $userRow = pg_fetch_assoc($result3a);
+      $userRow1 = pg_fetch_assoc($result3c);
       $totalPoints = $userRow[points];
-      $pointsLeft = $totalPoints - $points;
+      $usedPoints = $userRow1[sum];
+      $pointsCanUse = $totalPoints - $usedPoints + $old_points;
+      $pointsLeft = $pointsCanUse - $points;
 
       if ($pointsLeft >= 0) {
         $result3b = pg_query($conn, "UPDATE bid SET points = '$points' 
           WHERE aid = '$aid' AND pid = '$pid' AND bid = '$bid'");
+        
         if (!$result3b) {
           echo "<div class='alert alert-danger alert-dismissible' role='alert'>
              Change bidding points failed.
@@ -193,7 +207,7 @@
         }
       } else { // User doesn't have enough points
           echo "<div><div class='alert alert-danger alert-dismissible' role='alert'>
-            Points you have: $totalPoints. Points you bid: $points. You don't have enough points. Bid failed.
+            Points you have: $pointsCanUse. Points you bid: $points. You don't have enough points. Bid failed.
             </div></div>";
     }
   }
@@ -220,7 +234,8 @@
   FROM availability a, bid b
   WHERE a.aid = b.aid
   AND b.bid = '$uid'
-  AND b.status = 'successful'");
+  AND b.status = 'successful'
+  ORDER BY b.pid ASC");
 
   echo "<div>
   <form class='form-signin' action='profile.php' method='POST'>
@@ -243,7 +258,8 @@
   FROM availability a, bid b
   WHERE a.aid = b.aid
   AND b.bid = '$uid'
-  AND b.status = 'failed'");
+  AND b.status = 'failed'
+  ORDER BY b.pid ASC");
 
   while ($row = pg_fetch_assoc($result4)) {
     echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";

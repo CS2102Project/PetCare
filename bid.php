@@ -40,7 +40,7 @@ function search($conn){
      $pType = $_POST['petType'];
      $sTime = $_POST['sTime'];
      $eTime = $_POST['eTime'];
-     $sql = "SELECT * FROM availability a WHERE a.ptype = '$pType' AND ((a.afrom <= '$sTime' AND a.ato >= '$eTime'))";
+     $sql = "SELECT * FROM availability a WHERE a.ptype = '$pType' AND ((a.afrom <= '$sTime' AND a.ato >= '$eTime'))  ORDER BY a.aid ASC";
 
      $result = pg_query($conn, $sql);   
      while ($row = pg_fetch_assoc($result)) {
@@ -68,7 +68,7 @@ function search($conn){
 
 
 function getAvail($conn){
-    $sql = "SELECT * FROM availability a WHERE 'pending' = ALL(SELECT status FROM bid b WHERE b.aid = a.aid)";
+    $sql = "SELECT * FROM availability a WHERE 'pending' = ALL(SELECT status FROM bid b WHERE b.aid = a.aid)  ORDER BY a.aid ASC";
     $result = pg_query($conn, $sql);
    
 
@@ -106,7 +106,8 @@ function bid($conn) {
       $userRow = pg_fetch_assoc($result1);
       $userRow1 = pg_fetch_assoc($result4);
       $totalPoints = $userRow[points];
-      $pointsLeft = $totalPoints - $userRow1[sum];
+      $pointsCanUse = $totalPoints - $userRow1[sum];
+      $pointsLeft = $pointsCanUse - $points;
 
       if(pg_num_rows($result2) > 0) {
           if ($pointsLeft > 0) {
@@ -126,7 +127,7 @@ function bid($conn) {
         } else {
           // User doesn't have enough points
           echo "<div><div class='alert alert-danger alert-dismissible' role='alert'>
-          Points you have: $totalPoints. Points you bid: $points. You don't have enough points. Bid failed.
+          Points you have: $pointsCanUse. Points you bid: $points. You don't have enough points. Bid failed.
           </div></div>";
         }
       } else {

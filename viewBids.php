@@ -6,7 +6,7 @@
 
 <?php
 	$result=pg_query($conn, "SELECT * FROM bid b, availability a, pets p
-		WHERE b.aid = a.aid AND p.pid = b.pid");
+		WHERE b.aid = a.aid AND p.pid = b.pid  ORDER BY b.bid ASC");
 	while ($row = pg_fetch_assoc($result)) {
     echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
         echo "Bidder ID: ".$row['bid'];
