@@ -28,7 +28,19 @@
   }
 	
 	if(isset($_POST['delete'])){
-		$result=pg_query($conn, "DELETE FROM bid WHERE bid = $_POST[bid]");
+		$result1 = pg_query($conn, "DELETE FROM bid WHERE bid = '$_POST[bId]' AND aid = '$_POST[aId]' AND pid = '$_POST[pId]'");
+        if (!$result1) {
+             echo "<div class='alert alert-danger alert-dismissible' role='alert'>
+             Delete bid failed.
+              </div>";
+         
+         } else {
+             echo "<div class='alert alert-success alert-dismissible' role='alert'>
+             Delete bid successfully!
+             </div>";
+      
+              echo "<meta http-equiv='refresh' content = '3'>";
+         }
 	}
 
 ?>
