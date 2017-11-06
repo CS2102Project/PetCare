@@ -58,9 +58,11 @@
         echo "<div class='panel panel-warning'><div class='panel panel-heading'><h3>";
         echo "Pet ID: ".$row['pid'];
         echo "<form class='delete-form' action='profile.php' method='POST'>
-         <label>Update pet name</label>
+         
          <input type ='hidden' name='pId' placeholder='pet id' value='".$row['pid']."' required >
+         <label>Update pet name</label>
          <input type ='text' name = 'pName' placeholder = 'pet name' value = '".$row['pname']."' required>
+         <label>Update pet type</label>
          <input type ='text' name = 'pType' placeholder = 'pet type' value = '".$row['ptype']."' required>
          <button class='btn btn-warning btn-xs' type='submit' name='update_pet'>Update this pet</button>
          <button class='btn btn-warning btn-xs' type='submit' name='delete_pet'>Delete this pet</button>
