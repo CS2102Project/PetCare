@@ -26,10 +26,7 @@
         <input type='text' name='re_enter_password' class='form-control' placeholder='Enter the new password again' required>
         <button class='btn btn-lg btn-warning btn-block' type='submit' name='changePasswordSubmit'>Change Password</button>
       </form>
-
   </div>";
-
-
 
     if (isset($_POST['changePasswordSubmit'])) {
       if ($_POST[new_password] <> $_POST[re_enter_password]) {

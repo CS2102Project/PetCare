@@ -27,6 +27,7 @@ echo "<div>
   <h2 class='form-signin-heading'>My caring history </h2>
   </div>";
   getAvailHistory($conn);
+  chooseBidder($conn);
 ?>
 
 <?php
@@ -132,7 +133,7 @@ function showBidders($conn, $aid) {
 	$result = pg_query($conn, $sql);
 	while ($row = pg_fetch_assoc($result)) {
 		echo "<div><br>Bidder: ".$row['bid'].", Bid points: ".$row['points'].", Status: ".$row['status'];
-		echo "<form method='POST' action='".chooseBidder($conn)."'>
+		echo "<form method='POST' action='putAvail.php'>
 				<input type='hidden' name='bid' value='".$row['bid']."'>
 				<input type='hidden' name='aid' value='".$row['aid']."'>
 				<input type='hidden' name='pid' value='".$row['pid']."'>
@@ -167,7 +168,25 @@ function chooseBidder($conn) {
 		// Deduct points of bidder
 		$sql4 = "UPDATE users SET points = '$pointsLeft' where uid ='$bid'";
 		$result = pg_query($conn, $sql4);
-		
+
+		// Reward carer with bidder's points
+		// Find carer
+		$sql = "SELECT * FROM availability WHERE aid = '$aid'";
+		$result = pg_query($conn, $sql);
+		$row = pg_fetch_assoc($result);
+		$cid = $row['cid'];
+
+		// Get carer's points
+		$sql = "SELECT * FROM users WHERE uid = '$cid'";
+		$result = pg_query($conn, $sql);
+		$row = pg_fetch_assoc($result);
+		$cidPoints = $row['points'];
+
+		// Update points
+		$cidPoints = $cidPoints + $points;
+		$sql = "UPDATE users SET points = '$cidPoints' where uid ='$cid'";
+		$result = pg_query($conn, $sql);
+
 		header("Location: putAvail.php");
 		
 		}
