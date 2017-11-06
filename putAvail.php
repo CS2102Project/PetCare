@@ -13,7 +13,7 @@ echo"
         <h2 class='form-signin-heading'>Be a carer! Post your availability here!</h2>
         <input type='text' name='ptype' class='form-control' placeholder='Pet type' required autofocus><br>
         <h4 class='form-signin-heading'>From</h4>
-        <input type='date' name='afrom' class='form-control' required><br>
+        <input type='date' name='afrom' class='form-control' equired><br>
         <h4 class='form-signin-heading'>To</h4>
         <input type='date' name='ato' class='form-control' required><br>
         <button class='btn btn-lg btn-warning btn-block' type='submit' name='postAvailSubmit'>SUBMIT</button>
@@ -37,6 +37,17 @@ function post_avail($conn) {
 		$ptype = $_POST['ptype'];
 		$afrom = $_POST['afrom'];
 		$ato = $_POST['ato'];
+		$today = date("Y-m-d");
+		if ($afrom < $today) {
+			echo "<div class='alert alert-danger alert-dismissible' role='alert'>
+			  Post failed. Invalid from date.
+			</div>";
+		} elseif ($afrom > $ato) {
+			echo "<div class='alert alert-danger alert-dismissible' role='alert'>
+			  Post failed. Invalid time slot.
+			</div>";
+		} else {
+			// Input date is valid
 		$sql = "INSERT INTO availability (cid, ptype, afrom, ato) VALUES ('$cid', '$ptype', '$afrom', '$ato')";
 		$result = pg_query($conn, $sql);
 		if ($result) {
@@ -48,6 +59,7 @@ function post_avail($conn) {
 			  Post failed. Please try again.
 			</div>";
 		}
+	}
 		
 	}
 }
