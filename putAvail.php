@@ -168,7 +168,25 @@ function chooseBidder($conn) {
 		// Deduct points of bidder
 		$sql4 = "UPDATE users SET points = '$pointsLeft' where uid ='$bid'";
 		$result = pg_query($conn, $sql4);
-		
+
+		// Reward carer with bidder's points
+		// Find carer
+		$sql = "SELECT * FROM availability WHERE aid = '$aid'";
+		$result = pg_query($conn, $sql);
+		$row = pg_fetch_assoc($result);
+		$cid = $row['cid'];
+
+		// Get carer's points
+		$sql = "SELECT * FROM users WHERE uid = '$cid'";
+		$result = pg_query($conn, $sql);
+		$row = pg_fetch_assoc($result);
+		$cidPoints = $row['points'];
+
+		// Update points
+		$cidPoints = $cidPoints + $points;
+		$sql = "UPDATE users SET points = '$cidPoints' where uid ='$cid'";
+		$result = pg_query($conn, $sql);
+
 		header("Location: putAvail.php");
 		
 		}
